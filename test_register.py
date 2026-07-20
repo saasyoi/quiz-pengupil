@@ -15,7 +15,6 @@ def test_register_valid(driver):
     driver.find_element(By.NAME, "submit").click()
     time.sleep(2)
 
-    # Sukses jika redirect ke index.php atau login.php (bukan tetap di register.php dengan error)
     assert "register.php" not in driver.current_url or "berhasil" in driver.page_source.lower()
 
 # TC_REG_02
