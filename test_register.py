@@ -39,5 +39,4 @@ def test_register_duplicate(driver):
     driver.find_element(By.NAME, "submit").click()
     time.sleep(2)
 
-    # App mengarahkan ke index.php (termasuk saat duplikat akibat bug cek_nama)
-    assert "register.php" in driver.current_url or "sudah" in driver.page_source.lower() or "index.php" in driver.current_url
+    assert "register.php" in driver.current_url or "sudah" in driver.page_source.lower()
