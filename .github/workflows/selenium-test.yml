@@ -14,13 +14,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ''
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: quiz_pengupil
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mysqladmin ping -proot"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -35,7 +34,22 @@ jobs:
         extensions: mysqli
 
     - name: Import Database
-      run: mysql -h 127.0.0.1 -u root quiz_pengupil < db/quiz_pengupil.sql
+      run: mysql -h 127.0.0.1 -u root -proot quiz_pengupil < db/quiz_pengupil.sql
+
+    - name: Configure DB Connection for CI
+      run: |
+        cat > koneksi.php << 'EOF'
+        <?php
+            $host     = '127.0.0.1';
+            $user     = 'root';
+            $password = 'root';
+            $db       = 'quiz_pengupil';
+            $con = mysqli_connect($host, $user, $password, $db);
+            if (!$con) {
+                die("Connection failed: " . mysqli_connect_error());
+            }
+        ?>
+        EOF
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -47,10 +61,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install selenium pytest
 
-    - name: Install ChromeDriver
+    - name: Install Google Chrome
       run: |
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
         sudo apt-get update
-        sudo apt-get install -y chromium-browser chromium-chromedriver
+        sudo apt-get install -y google-chrome-stable
 
     - name: Start PHP Built-in Server
       run: php -S localhost:8000 &
