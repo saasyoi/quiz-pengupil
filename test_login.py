@@ -12,7 +12,6 @@ def test_login_valid(driver):
     driver.find_element(By.NAME, "submit").click()
     time.sleep(2)
 
-    # Sukses jika redirect keluar dari login.php (ke index.php)
     assert "login.php" not in driver.current_url or "selamat datang" in driver.page_source.lower()
 
 # TC_LOG_02
